@@ -4,6 +4,29 @@ from libqtile import layout, bar, widget
 
 from libqtile.dgroups import simple_key_binder
 
+
+groups = [
+    Group("Browser", matches=[Match(wm_class="google-chrome-stable")]),
+    Group("IDE"),
+    Group("Misc"),
+    Group("Media"),
+    Group("Workspace"),
+]
+
+def getIndex(groupName):
+    for i in xrange(len(groups)):
+        if groups[i].name == groupName:
+            return i
+
+def toPreviousGroup(qtile):
+    i = getIndex(qtile.currentGroup.name)
+    qtile.currentWindow.togroup(groups[(i-1) % len(groups)])
+
+def toNextGroup(qtile):
+    i = getIndex(qtile.currentGroup.name)
+    qtile.currentWindow.togroup(groups[(i+1) % len(groups)])
+
+
 mod = "mod4"
 
 keys = [
@@ -47,7 +70,7 @@ keys = [
         [mod, "shift"], "Return",
         lazy.layout.toggle_split()
     ),
-    Key([mod], "Return", lazy.spawn("xterm")),
+    Key([mod], "Return", lazy.spawn("uxterm")),
 
     # Toggle between different layouts as defined below
     Key([mod], "Tab", lazy.nextlayout()),
@@ -58,18 +81,11 @@ keys = [
     Key([mod], "r", lazy.spawncmd()),
 ]
 
-group = [
-    Group("Browser", matches=[Match(wm_class="google-chrome-stable")]),
-    Group("IDE"),
-    Group("Misc"),
-    Group("Media"),
-    Group("Workspace"),
-]
 
-for i in range(0, len(group)):
-    keys.append(
-            Key([mod], group[i].name, lazy.group[group[i].name].toscreen())
-    )
+keys.append(Key([mod], "Left", lazy.group.prevgroup()))
+keys.append(Key([mod], "Right", lazy.group.nextgroup()))
+keys.append(Key(["mod1", "shift"], "Left", lazy.function(toPreviousGroup)))
+keys.append(Key(["mod1", "shift"], "Right", lazy.function(toNextGroup)))
 
 #for i in group:
 #    # mod1 + letter of group = switch to group
