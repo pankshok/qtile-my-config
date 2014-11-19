@@ -30,38 +30,57 @@ def toNextGroup(qtile):
 mod = "mod4"
 
 keys = [
+    # Movements
+    Key([mod], "Left", lazy.screen.prevgroup(skip_managed=True)),
+    Key([mod], "Right", lazy.screen.nextgroup(skip_managed=True)),
+
     # Switch between windows in current stack pane
-    Key(
-        [mod], "k",
-        lazy.layout.down()
-    ),
-    Key(
-        [mod], "j",
-        lazy.layout.up()
-    ),
+    Key([mod], "k", lazy.layout.down()),
+    Key([mod], "j", lazy.layout.up()),
+
+    Key([mod], "i", lazy.layout.grow()),
+    Key([mod], "m", lazy.layout.shrink()),
+
+    Key([mod], "n", lazy.layout.normalize()),
+    Key([mod], "o", lazy.layout.maximize()),
+
+    Key([mod, "shift"], "space", lazy.layout.flip()),
+
+    Key([mod], "Tab", lazy.layout.previous()),
+    Key([mod, "shift"], "Tab", lazy.layout.next()),
+
+    Key([mod], "f", lazy.window.toggle_floating()),
+    Key([mod, "shift"], "f", lazy.window.toggle_fullscreen()),
+
+    Key([mod], "space", lazy.nextlayout()),
+
+    Key([mod, "shift"], "v", lazy.layout.add()),
+    Key([mod, "control"], "v", lazy.layout.remove()),
+
+    # size
+    Key([mod, "shift"], "Right", lazy.layout.increase_ratio()),
+    Key([mod, "shift"], "Left", lazy.layout.decrease_ratio()),
+
+    # move to
+    Key([mod], "g", lazy.togroup()),
+
+    Key([mod], "q", lazy.findwindow()),
+
+    Key([mod, "shift"], "Return", lazy.layout.toggle_split()),
+
+
 
     # Move windows up or down in current stack
-    Key(
-        [mod, "control"], "k",
-        lazy.layout.shuffle_down()
-    ),
-    Key(
-        [mod, "control"], "j",
-        lazy.layout.shuffle_up()
-    ),
+    Key([mod, "control"], "k", lazy.layout.shuffle_down()),
+    Key([mod, "control"], "j", lazy.layout.shuffle_up()),
 
     # Switch window focus to other pane(s) of stack
-    Key(
-        [mod], "space",
-        lazy.layout.next()
-    ),
+    Key([mod], "space", lazy.layout.next()),
 
     # Swap panes of split stack
-    Key(
-        [mod, "shift"], "space",
-        lazy.layout.rotate()
-    ),
+    Key([mod, "shift"], "space", lazy.layout.rotate()),
 
+    # Alsamixer volume controls
     Key([], "XF86AudioRaiseVolume",
         lazy.spawn("amixer sset Master 5%+")),
     Key([], "XF86AudioLowerVolume",
@@ -88,11 +107,7 @@ keys = [
     Key([mod], "r", lazy.spawncmd()),
 ]
 
-
-keys.append(Key([mod], "Left", lazy.group.prevgroup()))
-keys.append(Key([mod], "Right", lazy.group.nextgroup()))
-keys.append(Key(["mod1", "shift"], "Left", lazy.function(toPreviousGroup)))
-keys.append(Key(["mod1", "shift"], "Right", lazy.function(toNextGroup)))
+dgroups_key_binder = simple_key_binder(mod)
 
 #for i in group:
 #    # mod1 + letter of group = switch to group
