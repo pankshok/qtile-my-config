@@ -6,7 +6,7 @@ from libqtile.dgroups import simple_key_binder
 
 
 groups = [
-    Group("Browser", matches=[Match(wm_class="google-chrome-stable")]),
+    Group("Browser", matches=[Match(wm_class=["Google-chrome-stable", "Firefox"], role=["Browser"])]),
     Group("IDE"),
     Group("Misc"),
     Group("Media"),
@@ -61,6 +61,13 @@ keys = [
         [mod, "shift"], "space",
         lazy.layout.rotate()
     ),
+
+    Key([], "XF86AudioRaiseVolume",
+        lazy.spawn("amixer sset Master 5%+")),
+    Key([], "XF86AudioLowerVolume",
+        lazy.spawn("amixer sset Master 5%-")),
+    Key([], "XF86AudioMute",
+        lazy.spawn("amixer sset Master toggle")),
 
     # Toggle between split and unsplit sides of stack.
     # Split = all windows displayed
@@ -121,6 +128,7 @@ screens = [
                 widget.Clock(format='%Y-%m-%d %a %I:%M %p'),
             ],
             30,
+            background=["#000000", "#222222"],
         ),
     ),
 ]
