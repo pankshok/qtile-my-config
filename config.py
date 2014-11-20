@@ -2,7 +2,6 @@ from libqtile.config import Key, Screen, Group, Drag, Click, Match
 from libqtile.command import lazy
 from libqtile import layout, bar, widget
 
-from libqtile.dgroups import simple_key_binder
 
 
 groups = [
@@ -107,6 +106,8 @@ keys = [
     Key([mod], "r", lazy.spawncmd()),
 ]
 
+from libqtile.dgroups import simple_key_binder
+
 dgroups_key_binder = simple_key_binder(mod)
 
 #for i in group:
@@ -122,7 +123,7 @@ dgroups_key_binder = simple_key_binder(mod)
 
 layouts = [
     layout.Max(),
-    layout.Stack(num_stacks=3)
+    layout.Stack(num_stacks=2)
 ]
 
 widget_defaults = dict(
@@ -138,9 +139,14 @@ screens = [
                 widget.GroupBox(),
                 widget.Prompt(),
                 widget.WindowName(),
-                widget.TextBox("dassdsfault config", name="default"),
+                widget.TextBox("DO COOL CONFIG  ", name="default"),
                 widget.Systray(),
-                widget.Clock(format='%Y-%m-%d %a %I:%M %p'),
+                widget.Sep(padding=5),
+                widget.Volume(),
+                widget.Sep(padding=5),
+                widget.Battery(),
+                widget.Sep(padding=5),
+                widget.Clock(format='%I:%M %p'),
             ],
             30,
             background=["#000000", "#222222"],
