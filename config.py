@@ -12,19 +12,54 @@ groups = [
     Group("Workspace"),
 ]
 
-def getIndex(groupName):
-    for i in xrange(len(groups)):
-        if groups[i].name == groupName:
-            return i
 
-def toPreviousGroup(qtile):
-    i = getIndex(qtile.currentGroup.name)
-    qtile.currentWindow.togroup(groups[(i-1) % len(groups)])
+################################################################################
+# Helper functions
+################################################################################
 
-def toNextGroup(qtile):
-    i = getIndex(qtile.currentGroup.name)
-    qtile.currentWindow.togroup(groups[(i+1) % len(groups)])
+def to_urgent(qtile):
+    cg = qtile.currentGroup
+    for group in qtile.groupMap.values():
+        if group == cg:
+            continue
+        if len([w for w in group.windows if w.urgent]) > 0:
+            qtile.currentScreen.setGroup(group)
+            return
 
+
+def switch_to(name):
+    def callback(qtile):
+        for window in qtile.windowMap.values():
+            if window.group and window.match(wname=name):
+                qtile.currentScreen.setGroup(window.group)
+                window.group.focus(window, False)
+                break
+    return callback
+
+
+class SwapGroup(object):
+    def __init__(self, group):
+        self.group = group
+        self.last_group = None
+
+    def group_by_name(self, groups, name):
+        for group in groups:
+            if group.name == name:
+                return group
+
+    def __call__(self, qtile):
+        group = self.group_by_name(qtile.groups, self.group)
+        cg = qtile.currentGroup
+        if cg != group:
+            qtile.currentScreen.setGroup(group)
+            self.last_group = cg
+        elif self.last_group:
+            qtile.currentScreen.setGroup(self.last_group)
+
+
+################################################################################
+# Key bindings
+################################################################################
 
 mod = "mod4"
 
