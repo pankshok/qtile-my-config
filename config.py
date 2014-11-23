@@ -167,13 +167,42 @@ widget_defaults = dict(
     padding=3,
 )
 
+
+bottom_bar = bar.Bar(
+        [
+            widget.CPUGraph(),
+            widget.Sep(padding=10),
+            widget.HDDBusyGraph(),
+            widget.Sep(padding=10),
+            widget.MemoryGraph(),
+            widget.Sep(padding=10),
+            widget.NetGraph(),
+            widget.Sep(padding=10),
+            widget.SwapGraph(),
+            widget.Sep(padding=10),
+            widget.Image(filename="~/1.png"),
+            widget.Notify(),
+            widget.BatteryIcon(),
+            widget.KeyboardLayout(configured_keyboards=["us", "ru"]),
+            #widget.LaunchBar(progs=[("xterm", "firefox-bin", "lonch xtrm")]), fails
+            widget.ThermalSensor(),
+            #widget.Wlan(), module has no attribute Wlan,
+            widget.CurrentLayout(),
+            widget.WindowName(),
+            #widget.WindowTabs(),  fails "one stretch allowed"
+
+            ],
+        30,
+    )
+
 screens = [
     Screen(
         top=bar.Bar(
             [
                 widget.GroupBox(),
                 widget.Prompt(),
-                widget.WindowName(),
+                #widget.WindowName(),
+                widget.TaskList(),
                 widget.TextBox("DO COOL CONFIG  ", name="default"),
                 widget.Systray(),
                 widget.Sep(padding=5),
@@ -186,6 +215,7 @@ screens = [
             30,
             background=["#000000", "#222222"],
         ),
+        bottom=bottom_bar,
     ),
 ]
 
