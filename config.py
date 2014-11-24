@@ -142,21 +142,15 @@ keys = [
 ]
 
 from libqtile.dgroups import simple_key_binder
-
 dgroups_key_binder = simple_key_binder(mod)
 
-#for i in group:
-#    # mod1 + letter of group = switch to group
-#    keys.append(
-#        Key([mod], i.name, lazy.group[i.name].toscreen())
-#    )
-#
 #    # mod1 + shift + letter of group = switch to & move focused window to group
 #    keys.append(
 #        Key([mod, "shift"], i.name, lazy.window.togroup(i.name))
 #    )
 
 layouts = [
+    layout.Floating(),
     layout.Max(),
     layout.Stack(num_stacks=2)
 ]
@@ -228,7 +222,7 @@ mouse = [
     Click([mod], "Button2", lazy.window.bring_to_front())
 ]
 
-dgroups_key_binder = None
+#dgroups_key_binder = True
 dgroups_app_rules = []
 main = None
 follow_mouse_focus = True
