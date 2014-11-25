@@ -13,50 +13,6 @@ groups = [
 ]
 
 
-################################################################################
-# Helper functions
-################################################################################
-
-def to_urgent(qtile):
-    cg = qtile.currentGroup
-    for group in qtile.groupMap.values():
-        if group == cg:
-            continue
-        if len([w for w in group.windows if w.urgent]) > 0:
-            qtile.currentScreen.setGroup(group)
-            return
-
-
-def switch_to(name):
-    def callback(qtile):
-        for window in qtile.windowMap.values():
-            if window.group and window.match(wname=name):
-                qtile.currentScreen.setGroup(window.group)
-                window.group.focus(window, False)
-                break
-    return callback
-
-
-class SwapGroup(object):
-    def __init__(self, group):
-        self.group = group
-        self.last_group = None
-
-    def group_by_name(self, groups, name):
-        for group in groups:
-            if group.name == name:
-                return group
-
-    def __call__(self, qtile):
-        group = self.group_by_name(qtile.groups, self.group)
-        cg = qtile.currentGroup
-        if cg != group:
-            qtile.currentScreen.setGroup(group)
-            self.last_group = cg
-        elif self.last_group:
-            qtile.currentScreen.setGroup(self.last_group)
-
-
 #TODO Wrap all xbacklight arguments
 #TODO Combine this control class with widget that will show current backlight value
 #TODO Replase subprocess.call with qtile apropriate command
@@ -67,11 +23,11 @@ class BacklightControl(object):
         self._command_get = "xbacklight -get"
         self._command_set = "xbacklight -set {val}"
 
-        self._currentBacklight = self.getCurrentBacklight()
-        self._step = 5
+        self._currentBacklight = 60
+        self._step = 10
         self._max  = 100
         self._min  = 10
-
+        self.setBacklight()
 
     def _update(self):
         if self._currentBacklight > self._max:
@@ -81,25 +37,19 @@ class BacklightControl(object):
         self.setBacklight()
 
     def getCurrentBacklight(self):
-        #return int(lazy.spawn(self._command_get))
-        return int(subprocess.call(self._command_get, shell=True))
+        p = subprocess.Popen(self._command_get, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, _ = p.communicate()
+        return int(out)
 
-    def setBacklight(self, amount=False):
-        if not amount:
-            amount = self._currentBacklight
-        #lazy.spawn(self._command_set.format(val=self._currentBacklight))
+    def setBacklight(self):
         subprocess.call(self._command_set.format(val=self._currentBacklight), shell=True)
 
-    def increase(self, amount=None):
-        if not amount:
-            amount = self._step
-        self._currentBacklight += amount
+    def increase(self):
+        self._currentBacklight += self._step
         self._update()
 
-    def decrease(self, amount=None):
-        if not amount:
-            amount = self._step
-        self._currentBacklight -= amount
+    def decrease(self):
+        self._currentBacklight -= self._step
         self._update()
 
 
@@ -117,13 +67,13 @@ keys = [
     Key([mod], "Right", lazy.screen.nextgroup(skip_managed=True)),
 
     # Switch between windows in current stack pane
-    Key([mod], "k", lazy.layout.down()),
-    Key([mod], "j", lazy.layout.up()),
+    Key([mod], "k", lazy.layout.down()), #NO SUCH COMMAND
+    Key([mod], "j", lazy.layout.up()),   #NO SUCH COMMAND
 
-    Key([mod], "i", lazy.layout.grow()),
-    Key([mod], "m", lazy.layout.shrink()),
+    Key([mod], "i", lazy.layout.grow()), #NO SUCH COMMAND
+    Key([mod], "m", lazy.layout.shrink()), #NO SUCH COMMAND
 
-    Key([mod], "n", lazy.layout.normalize()),
+    Key([mod], "n", lazy.layout.normalize()), 
     Key([mod], "o", lazy.layout.maximize()),
 
     Key([mod, "shift"], "space", lazy.layout.flip()),
@@ -172,8 +122,9 @@ keys = [
 
 
     #Backlight controls
-    Key([], "XF86MonBrightnessUp", backlight.increase()),
-    Key([], "XF86MonBrightnessDown", backlight.decrease()),
+    Key([], "XF86MonBrightnessUp", lazy.function(lambda _: backlight.increase())),
+    Key([], "XF86MonBrightnessDown", lazy.function(lambda _: backlight.decrease())),
+
 
     # Toggle between split and unsplit sides of stack.
     # Split = all windows displayed
@@ -234,7 +185,7 @@ bottom_bar = bar.Bar(
             #widget.Wlan(), module has no attribute Wlan,
             widget.CurrentLayout(),
             widget.WindowName(),
-            #widget.Backlight(), zero division
+            widget.Backlight(backlight_name="intel_backlight"),
             ],
         30,
     )
