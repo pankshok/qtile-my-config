@@ -1,8 +1,9 @@
 from libqtile.config import Key, Screen, Group, Drag, Click, Match
 from libqtile.command import lazy
+from libqtile.dgroups import simple_key_binder
 from libqtile import layout, bar, widget
 
-
+from backlight_control import BacklightControl
 
 groups = [
     Group("Browser", matches=[Match(wm_class=["Google-chrome-stable", "Firefox"], role=["Browser"])]),
@@ -11,47 +12,6 @@ groups = [
     Group("Media"),
     Group("Workspace"),
 ]
-
-
-#TODO Wrap all xbacklight arguments
-#TODO Combine this control class with widget that will show current backlight value
-#TODO Replase subprocess.call with qtile apropriate command
-import subprocess
-
-class BacklightControl(object):
-    def __init__(self):
-        self._command_get = "xbacklight -get"
-        self._command_set = "xbacklight -set {val}"
-
-        self._currentBacklight = 60
-        self._step = 10
-        self._max  = 100
-        self._min  = 10
-        self.setBacklight()
-
-    def _update(self):
-        if self._currentBacklight > self._max:
-            self._currentBacklight = self._max
-        elif self._currentBacklight < self._min:
-            self._currentBacklight = self._min
-        self.setBacklight()
-
-    def getCurrentBacklight(self):
-        p = subprocess.Popen(self._command_get, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, _ = p.communicate()
-        return int(out)
-
-    def setBacklight(self):
-        subprocess.call(self._command_set.format(val=self._currentBacklight), shell=True)
-
-    def increase(self):
-        self._currentBacklight += self._step
-        self._update()
-
-    def decrease(self):
-        self._currentBacklight -= self._step
-        self._update()
-
 
 backlight = BacklightControl()
 
@@ -143,7 +103,6 @@ keys = [
     Key([mod], "r", lazy.spawncmd()),
 ]
 
-from libqtile.dgroups import simple_key_binder
 dgroups_key_binder = simple_key_binder(mod)
 
 #    # mod1 + shift + letter of group = switch to & move focused window to group
@@ -162,6 +121,42 @@ widget_defaults = dict(
     fontsize=16,
     padding=3,
 )
+
+
+
+def separated_bar(widgets, separator, *args, **kwargs):
+    '''returns bar.Bar object
+       :widgets - list of widgets
+       :separator - tuple, (sep_class, *sep_args, **sep_kwargs)
+       :*args and **kwargs for bar instantiation
+    '''
+
+    separated = []
+
+    for widget in widgets:
+        separated.extend([widget, separator[0](**separator[1])])
+    return bar.Bar(separated, *args, **kwargs)
+
+
+bot_bar = separated_bar(
+        [
+            widget.CPUGraph(),
+            widget.HDDBusyGraph(),
+            widget.MemoryGraph(),
+            widget.NetGraph(),
+            widget.SwapGraph(),
+            widget.Image(filename="~/1.png"),
+            widget.Notify(),
+            widget.BatteryIcon(),
+            widget.KeyboardLayout(configured_keyboards=["us", "ru"]),
+            widget.ThermalSensor(),
+            widget.CurrentLayout(),
+            widget.WindowName(),
+            widget.Backlight(backlight_name="intel_backlight"),
+            ],
+        (widget.Sep, dict(padding=10)),
+        30,
+        )
 
 
 bottom_bar = bar.Bar(
@@ -209,7 +204,7 @@ screens = [
             30,
             background=["#000000", "#222222"],
         ),
-        bottom=bottom_bar,
+        bottom=bot_bar,#bottom_bar,
     ),
 ]
 
@@ -222,7 +217,6 @@ mouse = [
     Click([mod], "Button2", lazy.window.bring_to_front())
 ]
 
-#dgroups_key_binder = True
 dgroups_app_rules = []
 main = None
 follow_mouse_focus = True
