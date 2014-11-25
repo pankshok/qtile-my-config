@@ -59,15 +59,19 @@ class SwapGroup(object):
 
 #TODO Wrap all xbacklight arguments
 #TODO Combine this control class with widget that will show current backlight value
-
-#from subpcrocess import call
+#TODO Replase subprocess.call with qtile apropriate command
+import subprocess
 
 class BacklightControl(object):
     def __init__(self):
+        self._command_get = "xbacklight -get"
+        self._command_set = "xbacklight -set {val}"
+
         self._currentBacklight = self.getCurrentBacklight()
         self._step = 5
         self._max  = 100
         self._min  = 10
+
 
     def _update(self):
         if self._currentBacklight > self._max:
@@ -77,12 +81,14 @@ class BacklightControl(object):
         self.setBacklight()
 
     def getCurrentBacklight(self):
-        return int(lazy.spawn("xbacklight -get"))
+        #return int(lazy.spawn(self._command_get))
+        return int(subprocess.call(self._command_get, shell=True))
 
-    def setBacklight(self, amount):
+    def setBacklight(self, amount=False):
         if not amount:
             amount = self._currentBacklight
-        lazy.spawn("xbacklight -set {0}".format(self._currentBacklight))
+        #lazy.spawn(self._command_set.format(val=self._currentBacklight))
+        subprocess.call(self._command_set.format(val=self._currentBacklight), shell=True)
 
     def increase(self, amount=None):
         if not amount:
