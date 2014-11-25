@@ -124,10 +124,10 @@ widget_defaults = dict(
 
 
 
-def separated_bar(widgets, separator, *args, **kwargs):
+def separated_bar(separator, widgets, *args, **kwargs):
     '''returns bar.Bar object
-       :widgets - list of widgets
        :separator - tuple, (sep_class, sep_defaults)
+       :widgets - list of widgets
        :*args and **kwargs for bar instantiation
     '''
     separated = []
@@ -137,7 +137,8 @@ def separated_bar(widgets, separator, *args, **kwargs):
     return bar.Bar(separated, *args, **kwargs)
 
 
-bot_bar = separated_bar(
+bottom_bar = separated_bar(
+    (widget.TextBox, dict(text=" ")),
     [
        widget.CPUGraph(),
        widget.HDDBusyGraph(),
@@ -153,31 +154,30 @@ bot_bar = separated_bar(
        widget.WindowName(),
        widget.Backlight(backlight_name="intel_backlight"),
     ],
-    (widget.TextBox, dict(text=" ")),
     30,
+    background=["#222222", "#000000"],
 )
 
+top_bar = separated_bar(
+    (widget.TextBox, dict(text=" ")),
+    [
+        widget.GroupBox(),
+        widget.Prompt(),
+        widget.TaskList(),
+        widget.TextBox("DO COOL CONFIG", name="default"),
+        widget.Systray(),
+        widget.Volume(),
+        widget.Battery(),
+        widget.Clock(format='%H:%M'),
+    ],
+    30,
+    background=["#000000", "#222222"],
+)
 
 screens = [
     Screen(
-        top=bar.Bar(
-            [
-                widget.GroupBox(),
-                widget.Prompt(),
-                widget.TaskList(),
-                widget.TextBox("DO COOL CONFIG  ", name="default"),
-                widget.Systray(),
-                widget.Sep(padding=5),
-                widget.Volume(),
-                widget.Sep(padding=5),
-                widget.Battery(),
-                widget.Sep(padding=5),
-                widget.Clock(format='%I:%M %p'),
-            ],
-            30,
-            background=["#000000", "#222222"],
-        ),
-        bottom=bot_bar,#bottom_bar,
+        top=top_bar,
+        bottom=bottom_bar,
     ),
 ]
 
