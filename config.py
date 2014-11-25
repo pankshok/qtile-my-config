@@ -57,6 +57,48 @@ class SwapGroup(object):
             qtile.currentScreen.setGroup(self.last_group)
 
 
+#TODO Wrap all xbacklight arguments
+#TODO Combine this control class with widget that will show current backlight value
+
+#from subpcrocess import call
+
+class BacklightControl(object):
+    def __init__(self):
+        self._currentBacklight = self.getCurrentBacklight()
+        self._step = 5
+        self._max  = 100
+        self._min  = 10
+
+    def _update(self):
+        if self._currentBacklight > self._max:
+            self._currentBacklight = self._max
+        elif self._currentBacklight < self._min:
+            self._currentBacklight = self._min
+        self.setBacklight()
+
+    def getCurrentBacklight(self):
+        return int(lazy.spawn("xbacklight -get"))
+
+    def setBacklight(self, amount):
+        if not amount:
+            amount = self._currentBacklight
+        lazy.spawn("xbacklight -set {0}".format(self._currentBacklight))
+
+    def increase(self, amount=None):
+        if not amount:
+            amount = self._step
+        self._currentBacklight += amount
+        self._update()
+
+    def decrease(self, amount=None):
+        if not amount:
+            amount = self._step
+        self._currentBacklight -= amount
+        self._update()
+
+
+backlight = BacklightControl()
+
 ################################################################################
 # Key bindings
 ################################################################################
@@ -122,14 +164,17 @@ keys = [
     Key([], "XF86AudioMute",
         lazy.spawn("amixer sset Master toggle")),
 
+
+    #Backlight controls
+    Key([], "XF86MonBrightnessUp", backlight.increase()),
+    Key([], "XF86MonBrightnessDown", backlight.decrease()),
+
     # Toggle between split and unsplit sides of stack.
     # Split = all windows displayed
     # Unsplit = 1 window displayed, like Max layout, but still with
     # multiple stack panes
-    Key(
-        [mod, "shift"], "Return",
-        lazy.layout.toggle_split()
-    ),
+    Key([mod, "shift"], "Return", lazy.layout.toggle_split()),
+
     Key([mod], "Return", lazy.spawn("uxterm")),
 
     # Toggle between different layouts as defined below
@@ -183,8 +228,7 @@ bottom_bar = bar.Bar(
             #widget.Wlan(), module has no attribute Wlan,
             widget.CurrentLayout(),
             widget.WindowName(),
-            #widget.WindowTabs(),  fails "one stretch allowed"
-
+            #widget.Backlight(), zero division
             ],
         30,
     )
@@ -195,7 +239,6 @@ screens = [
             [
                 widget.GroupBox(),
                 widget.Prompt(),
-                #widget.WindowName(),
                 widget.TaskList(),
                 widget.TextBox("DO COOL CONFIG  ", name="default"),
                 widget.Systray(),
