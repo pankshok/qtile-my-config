@@ -127,10 +127,9 @@ widget_defaults = dict(
 def separated_bar(widgets, separator, *args, **kwargs):
     '''returns bar.Bar object
        :widgets - list of widgets
-       :separator - tuple, (sep_class, *sep_args, **sep_kwargs)
+       :separator - tuple, (sep_class, sep_defaults)
        :*args and **kwargs for bar instantiation
     '''
-
     separated = []
 
     for widget in widgets:
@@ -139,51 +138,25 @@ def separated_bar(widgets, separator, *args, **kwargs):
 
 
 bot_bar = separated_bar(
-        [
-            widget.CPUGraph(),
-            widget.HDDBusyGraph(),
-            widget.MemoryGraph(),
-            widget.NetGraph(),
-            widget.SwapGraph(),
-            widget.Image(filename="~/1.png"),
-            widget.Notify(),
-            widget.BatteryIcon(),
-            widget.KeyboardLayout(configured_keyboards=["us", "ru"]),
-            widget.ThermalSensor(),
-            widget.CurrentLayout(),
-            widget.WindowName(),
-            widget.Backlight(backlight_name="intel_backlight"),
-            ],
-        (widget.Sep, dict(padding=10)),
-        30,
-        )
+    [
+       widget.CPUGraph(),
+       widget.HDDBusyGraph(),
+       widget.MemoryGraph(),
+       widget.NetGraph(),
+       widget.SwapGraph(),
+       widget.Image(filename="~/1.png"),
+       widget.Notify(),
+       widget.BatteryIcon(),
+       widget.KeyboardLayout(configured_keyboards=["us", "ru"]),
+       widget.ThermalSensor(),
+       widget.CurrentLayout(),
+       widget.WindowName(),
+       widget.Backlight(backlight_name="intel_backlight"),
+    ],
+    (widget.TextBox, dict(text=" ")),
+    30,
+)
 
-
-bottom_bar = bar.Bar(
-        [
-            widget.CPUGraph(),
-            widget.Sep(padding=10),
-            widget.HDDBusyGraph(),
-            widget.Sep(padding=10),
-            widget.MemoryGraph(),
-            widget.Sep(padding=10),
-            widget.NetGraph(),
-            widget.Sep(padding=10),
-            widget.SwapGraph(),
-            widget.Sep(padding=10),
-            widget.Image(filename="~/1.png"),
-            widget.Notify(),
-            widget.BatteryIcon(),
-            widget.KeyboardLayout(configured_keyboards=["us", "ru"]),
-            #widget.LaunchBar(progs=[("xterm", "firefox-bin", "lonch xtrm")]), fails
-            widget.ThermalSensor(),
-            #widget.Wlan(), module has no attribute Wlan,
-            widget.CurrentLayout(),
-            widget.WindowName(),
-            widget.Backlight(backlight_name="intel_backlight"),
-            ],
-        30,
-    )
 
 screens = [
     Screen(
