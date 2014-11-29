@@ -22,7 +22,7 @@ class BacklightControl(object):
     '''
 
     def __init__(self,
-            command_get="xbacklight -set",
+            command_get="xbacklight -get",
             command_set="xbacklight -set {val}",
             default_backlight=60,
             step=10,
