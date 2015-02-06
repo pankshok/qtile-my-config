@@ -3,17 +3,14 @@ from libqtile.command import lazy
 from libqtile.dgroups import simple_key_binder
 from libqtile import layout, bar, widget
 
-from backlight_control import BacklightControl
 
 groups = [
     Group("Browser", matches=[Match(wm_class=["Google-chrome-stable", "Firefox"], role=["Browser"])]),
     Group("IDE"),
     Group("Misc"),
-    Group("Media"),
+    Group("Media", matches=[Match(wm_class=["Steam"])]),
     Group("Workspace"),
 ]
-
-backlight = BacklightControl()
 
 ################################################################################
 # Key bindings
@@ -33,7 +30,7 @@ keys = [
     Key([mod], "i", lazy.layout.grow()), #NO SUCH COMMAND
     Key([mod], "m", lazy.layout.shrink()), #NO SUCH COMMAND
 
-    Key([mod], "n", lazy.layout.normalize()), 
+    Key([mod], "n", lazy.layout.normalize()),
     Key([mod], "o", lazy.layout.maximize()),
 
     Key([mod, "shift"], "space", lazy.layout.flip()),
@@ -81,11 +78,6 @@ keys = [
         lazy.spawn("amixer sset Master toggle")),
 
 
-    #Backlight controls
-    Key([], "XF86MonBrightnessUp", lazy.function(lambda _: backlight.increase())),
-    Key([], "XF86MonBrightnessDown", lazy.function(lambda _: backlight.decrease())),
-
-
     # Toggle between split and unsplit sides of stack.
     # Split = all windows displayed
     # Unsplit = 1 window displayed, like Max layout, but still with
@@ -101,19 +93,20 @@ keys = [
     Key([mod, "control"], "r", lazy.restart()),
     Key([mod, "control"], "q", lazy.shutdown()),
     Key([mod], "r", lazy.spawncmd()),
+    Key([mod], "space", lazy.spawn("dmenu_run -fn 'Terminus:size=14' -nb '#000000' -nf '#fefefe'")),
 ]
 
 dgroups_key_binder = simple_key_binder(mod)
 
-#    # mod1 + shift + letter of group = switch to & move focused window to group
-#    keys.append(
-#        Key([mod, "shift"], i.name, lazy.window.togroup(i.name))
-#    )
-
 layouts = [
     layout.Floating(),
+    layout.Tile(ratio=0.35, borderwidth=1),
     layout.Max(),
-    layout.Stack(num_stacks=2)
+    #layout.Stack(num_stacks=2),
+    #layout.TreeTab(sections=['Work', 'Messaging', 'Docs', 'Util', 'Other']),
+    # a layout for pidgin
+    # layout.Slice('right', 256, name='pidgin', role='buddy_list',
+    #     fallback=layout.Stack(stacks=2, border_width=1)),
 ]
 
 widget_defaults = dict(
@@ -121,8 +114,6 @@ widget_defaults = dict(
     fontsize=16,
     padding=3,
 )
-
-
 
 def separated_bar(separator, widgets, *args, **kwargs):
     '''returns bar.Bar object
@@ -134,25 +125,25 @@ def separated_bar(separator, widgets, *args, **kwargs):
 
     for widget in widgets:
         separated.extend([widget, separator[0](**separator[1])])
+
     return bar.Bar(separated, *args, **kwargs)
 
 
 bottom_bar = separated_bar(
     (widget.TextBox, dict(text=" ")),
     [
-       widget.CPUGraph(),
-       widget.HDDBusyGraph(),
-       widget.MemoryGraph(),
-       widget.NetGraph(),
-       widget.SwapGraph(),
-       widget.Image(filename="~/1.png"),
-       widget.Notify(),
-       widget.BatteryIcon(),
-       widget.KeyboardLayout(configured_keyboards=["us", "ru"]),
-       widget.ThermalSensor(),
-       widget.CurrentLayout(),
-       widget.WindowName(),
-       widget.Backlight(backlight_name="intel_backlight"),
+        widget.CPUGraph(),
+        widget.HDDBusyGraph(),
+        widget.MemoryGraph(),
+        widget.NetGraph(),
+        widget.SwapGraph(),
+        widget.Notify(),
+        widget.BatteryIcon(),
+        widget.KeyboardLayout(configured_keyboards=["us", "ru"]),
+        widget.ThermalSensor(),
+        widget.CurrentLayout(),
+        widget.WindowName(),
+        widget.Backlight(backlight_name="intel_backlight"),
     ],
     30,
     background=["#222222", "#000000"],
@@ -184,9 +175,9 @@ screens = [
 # Drag floating layouts.
 mouse = [
     Drag([mod], "Button1", lazy.window.set_position_floating(),
-        start=lazy.window.get_position()),
+         start=lazy.window.get_position()),
     Drag([mod], "Button3", lazy.window.set_size_floating(),
-        start=lazy.window.get_size()),
+         start=lazy.window.get_size()),
     Click([mod], "Button2", lazy.window.bring_to_front())
 ]
 
@@ -197,4 +188,4 @@ bring_front_click = False
 cursor_warp = False
 floating_layout = layout.Floating()
 auto_fullscreen = True
-wmname = "qtile"
+wmname = "LG3D"#"qtile"
